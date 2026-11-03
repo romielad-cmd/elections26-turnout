@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+data/cur.pkl
+data/raw/ne_10m_countries.geojson
+dashboard/index_doc.json
+data/report.txt
+data/validation.txt
+data/page_data.json
+.claude/

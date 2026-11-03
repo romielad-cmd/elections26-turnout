@@ -1,0 +1,440 @@
+<meta name="dash-one-writer">
+<style>
+  .tv { direction: rtl; font-family: var(--font-anthropic-sans); color: var(--color-fg); display: grid; gap: var(--cds-gap-xl); }
+  .tv b { font-weight: 600; }
+  .tv-head { display: grid; gap: var(--cds-gap-sm); max-width: 62rem; }
+  .tv-title { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
+  .tv-lede { margin: 0; font-size: var(--cds-font-size-body); line-height: 1.6; }
+  .tv-muted { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); line-height: 1.5; margin: 0; }
+  .tv-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: var(--cds-gap-md); }
+  .tv-tile { display: grid; gap: var(--cds-gap-xs); align-content: start; padding-block: var(--cds-pad-sm); border-top: 3px solid var(--color-border-line); }
+  .tv-tile[data-band=red] { border-top-color: #d8443c; }
+  .tv-tile[data-band=orange] { border-top-color: #ea8a2e; }
+  .tv-tile[data-band=yellow] { border-top-color: #dcb62a; }
+  .tv-tile-label { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .tv-tile-num { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .tv-tile-sub { font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+  .tv-filters { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm) var(--cds-gap-lg); align-items: center; padding: var(--cds-pad-sm) var(--cds-pad-md); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); position: sticky; top: 0; z-index: 4; }
+  .tv-filters fieldset { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: center; }
+  .tv-filters legend, .tv-filters .tv-flabel { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); padding: 0; margin-inline-end: var(--cds-gap-xs); float: inline-start; }
+  .tv-filters label { font-size: var(--cds-font-size-caption); display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+  .tv-filters select { font: inherit; font-size: var(--cds-font-size-caption); padding: 2px 6px; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-bg); color: var(--color-fg); }
+  .tv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap: var(--cds-gap-md); }
+  .tv-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: grid; gap: var(--cds-gap-sm); align-content: start; min-width: 0; position: relative; }
+  .tv-card h2 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
+  .tv-scroll { max-height: 34rem; overflow: auto; min-height: 12rem; }
+  .tv-bars { display: grid; gap: 3px; min-height: 8rem; position: relative; }
+  .tv-bar-row { display: grid; grid-template-columns: minmax(7rem, 14rem) 1fr auto; align-items: center; gap: var(--cds-gap-sm); font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; padding-block: 1px; }
+  .tv-bar-row:hover { background: var(--color-bg); }
+  .tv-bar-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tv-bar-track { height: 12px; position: relative; }
+  .tv-bar-fill { position: absolute; inset-block: 0; inset-inline-start: 0; border-radius: 2px; background: var(--cds-chart-muted); }
+  .tv-bar-val { white-space: nowrap; color: var(--color-fg-muted); min-width: 8.5rem; text-align: start; }
+  .tv-swatch { display: inline-block; width: 0.625rem; height: 0.625rem; border-radius: 2px; vertical-align: baseline; background: var(--cds-chart-muted); }
+  .tv-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm) var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0; padding: 0; list-style: none; }
+  .tv-legend li { display: inline-flex; align-items: center; gap: 0.3rem; }
+  .tv-map { min-height: 24rem; position: relative; }
+  .tv-map svg { display: block; width: 100%; height: auto; }
+  .tv-bloc-group { display: grid; gap: 4px; padding-block: var(--cds-pad-xs); }
+  .tv-bloc-name { font-size: var(--cds-font-size-caption); font-weight: var(--cds-font-weight-medium); }
+  .tv-tip { position: absolute; z-index: 5; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; max-width: 19rem; line-height: 1.5; }
+  .tv-tip-head { color: var(--cds-text-secondary); }
+  .tv-tablebar { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: center; }
+  .tv-tablebar input { font: inherit; font-size: var(--cds-font-size-caption); padding: var(--cds-pad-xs) var(--cds-pad-sm); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-bg); color: var(--color-fg); min-width: 0; width: min(100%, 18rem); }
+  .tv-tablebox { max-height: 32rem; overflow: auto; }
+  .tv-table { border-collapse: collapse; width: 100%; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+  .tv-table th, .tv-table td { padding: 4px 8px; text-align: start; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+  .tv-table th { position: sticky; top: 0; background: var(--color-panel); font-weight: var(--cds-font-weight-medium); }
+  .tv-table th button { all: unset; cursor: pointer; }
+  .tv-table th button:focus-visible { outline: 2px solid var(--cds-chart-axis); outline-offset: 2px; }
+  .tv-chip { display: inline-block; padding: 0 6px; border-radius: 999px; font-weight: 600; color: #1d1d1d; }
+  .tv-method { display: grid; gap: var(--cds-gap-sm); max-width: 62rem; }
+  .tv-method h2 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
+  .tv-method li { line-height: 1.6; font-size: var(--cds-font-size-body); }
+  .tv-method ul { margin: 0; padding-inline-start: 1.2rem; display: grid; gap: var(--cds-gap-xs); }
+  [data-dash-source-state=empty] { color: transparent; }
+  [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+  @media (max-width: 34rem) { .tv-bar-row { grid-template-columns: 6.5rem 1fr auto; } .tv-bar-val { min-width: 0; } }
+</style>
+
+<div class="tv" dir="rtl" lang="he">
+  <header class="tv-head" id="top">
+    <h1 class="tv-title">קפיצות חריגות בשיעור ההצבעה – בחירות לכנסת ה־26</h1>
+    <p class="tv-lede">
+      ב־<b data-draw="cell" data-source="band_total" data-field="n" data-row="0">—</b> קלפיות, מתוך <b data-draw="cell" data-source="summary" data-field="n_ballots" data-row="0">—</b>, שיעור ההצבעה ב־27 באוקטובר 2026 היה גבוה ב־<b data-draw="cell" data-source="summary" data-field="yellow_pp" data-row="0">—</b> נקודות אחוז ויותר מהממוצע של חמש מערכות הבחירות הקודמות, והעלייה מובהקת ביחס להיסטוריה של הקלפי.
+      בקלפיות האלה הצביעו כ־<b data-draw="cell" data-source="band_total" data-field="added" data-row="0">—</b> בוחרים יותר מהצפוי, שהם כ־<b data-draw="cell" data-source="band_total" data-field="seats" data-row="0">—</b> מנדטים.
+      <b data-draw="topshare" data-source="bloc_share" data-field="share" data-row="0">—</b> מהקולות הנוספים הלכו ל<b data-draw="topbloc" data-source="bloc_share" data-field="bloc" data-row="0">—</b>.
+    </p>
+    <p class="tv-muted">השוואה לממוצע הבחירות באפריל 2019, ספטמבר 2019, מרץ 2020, מרץ 2021 ונובמבר 2022. מקור: קובצי התוצאות לפי קלפי של ועדת הבחירות המרכזית; סוג היישוב מקובץ היישובים של הלמ"ס. קפיצה בשיעור ההצבעה מצביעה על מקום שכדאי לבדוק, ואינה ראיה לאי־סדרים.</p>
+  </header>
+
+  <section class="tv-tiles" aria-label="נתונים מרכזיים">
+    <div class="tv-tile" data-band="red">
+      <span class="tv-tile-label">אדום: 30 נק' ומעלה</span>
+      <span class="tv-tile-num" data-draw="cell" data-source="band_summary" data-field="n" data-where="band=red">—</span>
+      <span class="tv-tile-sub">+<span data-draw="cell" data-source="band_summary" data-field="added" data-where="band=red">—</span> מצביעים · <span data-draw="cell" data-source="band_summary" data-field="seats" data-where="band=red">—</span> מנדטים</span>
+    </div>
+    <div class="tv-tile" data-band="orange">
+      <span class="tv-tile-label">כתום: 15 עד 30 נק'</span>
+      <span class="tv-tile-num" data-draw="cell" data-source="band_summary" data-field="n" data-where="band=orange">—</span>
+      <span class="tv-tile-sub">+<span data-draw="cell" data-source="band_summary" data-field="added" data-where="band=orange">—</span> מצביעים · <span data-draw="cell" data-source="band_summary" data-field="seats" data-where="band=orange">—</span> מנדטים</span>
+    </div>
+    <div class="tv-tile" data-band="yellow">
+      <span class="tv-tile-label">צהוב: 10 עד 15 נק'</span>
+      <span class="tv-tile-num" data-draw="cell" data-source="band_summary" data-field="n" data-where="band=yellow">—</span>
+      <span class="tv-tile-sub">+<span data-draw="cell" data-source="band_summary" data-field="added" data-where="band=yellow">—</span> מצביעים · <span data-draw="cell" data-source="band_summary" data-field="seats" data-where="band=yellow">—</span> מנדטים</span>
+    </div>
+    <div class="tv-tile">
+      <span class="tv-tile-label">שיעור הצבעה ארצי: ממוצע 5 קודמות → 2026</span>
+      <span class="tv-tile-num"><span data-draw="cell" data-source="summary" data-field="nat_avg" data-row="0">—</span>% → <span data-draw="cell" data-source="summary" data-field="nat_cur" data-row="0">—</span>%</span>
+      <span class="tv-tile-sub">ללא מעטפות כפולות</span>
+    </div>
+  </section>
+
+  <div class="tv-filters" id="filters" role="group" aria-label="סינון">
+    <fieldset>
+      <legend>רצועה</legend>
+      <label><input type="checkbox" name="band" value="אדום" checked><span class="tv-swatch" data-draw="swatch" data-band="אדום"></span>אדום</label>
+      <label><input type="checkbox" name="band" value="כתום" checked><span class="tv-swatch" data-draw="swatch" data-band="כתום"></span>כתום</label>
+      <label><input type="checkbox" name="band" value="צהוב" checked><span class="tv-swatch" data-draw="swatch" data-band="צהוב"></span>צהוב</label>
+    </fieldset>
+    <label><span class="tv-flabel">מגזר</span><select id="tv-sector" data-draw="sector-select" data-source="sector_summary" aria-label="מגזר"></select></label>
+    <label><input type="checkbox" id="tv-conf">רק השוואה ברמת קלפי או מקום קלפי (ביטחון גבוה או בינוני)</label>
+  </div>
+
+  <section class="tv-card" id="by-ballot">
+    <h2>השונות בכל קלפי מסומנת</h2>
+    <p class="tv-muted">שיעור ההצבעה ב־2026 פחות הממוצע של 5 המערכות הקודמות, בנקודות אחוז. בסוגריים: מספר המצביעים שנוספו מעל הצפוי. מעבר עם העכבר מציג את ההיסטוריה של הקלפי. מוצגות <b data-draw="count" data-source="flagged_ballots">—</b> קלפיות לפי הסינון.</p>
+    <div class="tv-scroll">
+      <div class="tv-bars dash-skeleton" data-draw="bars" data-source="flagged_ballots"></div>
+    </div>
+  </section>
+
+  <div class="tv-grid">
+    <section class="tv-card" id="map">
+      <h2>היכן נמצאות הקלפיות</h2>
+      <p class="tv-muted">כל נקודה היא קלפי מסומנת. קלפיות של אותו יישוב מפוזרות סביב מרכז היישוב. הצבע מראה את רצועת השונות, והגודל מראה (במתינות) את מספר המצביעים שנוספו.</p>
+      <ul class="tv-legend">
+        <li><span class="tv-swatch" data-draw="swatch" data-band="אדום"></span>אדום: 30 נק' ומעלה</li>
+        <li><span class="tv-swatch" data-draw="swatch" data-band="כתום"></span>כתום: 15–30</li>
+        <li><span class="tv-swatch" data-draw="swatch" data-band="צהוב"></span>צהוב: 10–15</li>
+      </ul>
+      <div class="tv-map dash-skeleton" data-draw="map" data-source="flagged_ballots israel_outline"></div>
+    </section>
+
+    <div class="tv-grid" style="grid-template-columns: 1fr; align-content: start;">
+      <section class="tv-card" id="sectors">
+        <h2>לפי מגזר</h2>
+        <p class="tv-muted">מצביעים שנוספו בקלפיות המסומנות, לפי הרצועות שנבחרו. בסוגריים: שיעור ההצבעה המשוקלל במגזר, ממוצע 5 קודמות → 2026.</p>
+        <div class="tv-bars dash-skeleton" data-draw="sectors" data-source="sector_summary"></div>
+      </section>
+
+      <section class="tv-card" id="parties">
+        <h2>לאן הלכו הקולות שנוספו</h2>
+        <p class="tv-muted">הקולות שנוספו בכל קלפי חולקו לפי התפלגות ההצבעה באותה קלפי (שיטה א'), וסוכמו לפי מפלגה, לפי הרצועות שנבחרו. בסוגריים: מנדטים משוערים.</p>
+        <ul class="tv-legend">
+          <li><span class="tv-swatch" data-draw="swatch" data-bloc="קואליציה"></span>קואליציה</li>
+          <li><span class="tv-swatch" data-draw="swatch" data-bloc="אופוזיציה"></span>אופוזיציה</li>
+          <li><span class="tv-swatch" data-draw="swatch" data-bloc="מפלגות ערביות"></span>מפלגות ערביות</li>
+          <li><span class="tv-swatch" data-draw="swatch" data-bloc="אחר"></span>אחר</li>
+        </ul>
+        <div class="tv-bars dash-skeleton" data-draw="parties" data-source="party_added summary"></div>
+      </section>
+    </div>
+  </div>
+
+  <section class="tv-card" id="blocs">
+    <h2>הקולות שנוספו לפי גוש, בשתי שיטות</h2>
+    <p class="tv-muted">שיטה א': חלוקה לפי התפלגות ההצבעה בקלפי ב־2026. שיטה ב': הקולות שכל גוש קיבל בפועל, פחות מה שהיה מקבל אילו שיעור ההצבעה היה כממוצע וחלקו בקלפי היה כמו ב־2022. שיטה ב' כוללת גם שינויים בהעדפות הבוחרים מאז 2022.</p>
+    <ul class="tv-legend">
+      <li><span class="tv-swatch" data-draw="swatch" data-bloc="A"></span>שיטה א'</li>
+      <li><span class="tv-swatch" data-draw="swatch" data-bloc="B"></span>שיטה ב'</li>
+    </ul>
+    <div class="tv-bars dash-skeleton" data-draw="blocs" data-source="bloc_added"></div>
+  </section>
+
+  <section class="tv-card" id="table">
+    <h2>כל הקלפיות המסומנות</h2>
+    <div class="tv-tablebar">
+      <input id="tv-search" type="search" placeholder="חיפוש יישוב, מגזר או מפלגה" aria-label="חיפוש בטבלה">
+      <span class="tv-muted">שיעורי הצבעה באחוזים. לחיצה על כותרת ממיינת. הרשימה המלאה של כל הקלפיות, כולל הלא מובהקות, נמצאת בקובץ ה־Excel.</span>
+    </div>
+    <div class="tv-tablebox">
+      <table class="tv-table" data-source="flagged_ballots" data-row-key="id">
+        <thead>
+          <tr>
+            <th data-field="city"><button type="button" data-sort="city">יישוב</button></th>
+            <th data-field="kalpi"><button type="button" data-sort="kalpi">קלפי</button></th>
+            <th data-field="sector"><button type="button" data-sort="sector">מגזר</button></th>
+            <th data-field="band"><button type="button" data-sort="dev">רצועה</button></th>
+            <th data-field="bzb"><button type="button" data-sort="bzb">בזב</button></th>
+            <th data-field="t21"><button type="button" data-sort="t21">אפר' 19</button></th>
+            <th data-field="t22"><button type="button" data-sort="t22">ספט' 19</button></th>
+            <th data-field="t23"><button type="button" data-sort="t23">מרץ 20</button></th>
+            <th data-field="t24"><button type="button" data-sort="t24">מרץ 21</button></th>
+            <th data-field="t25"><button type="button" data-sort="t25">נוב' 22</button></th>
+            <th data-field="avg"><button type="button" data-sort="avg">ממוצע</button></th>
+            <th data-field="now"><button type="button" data-sort="now">2026</button></th>
+            <th data-field="dev" aria-sort="descending"><button type="button" data-sort="dev">שונות (נק')</button></th>
+            <th data-field="sd"><button type="button" data-sort="sd">סטיות תקן</button></th>
+            <th data-field="added"><button type="button" data-sort="added">מצביעים שנוספו</button></th>
+            <th data-field="conf"><button type="button" data-sort="conf">רמת ביטחון</button></th>
+            <th data-field="top_party"><button type="button" data-sort="top_party">מפלגה מובילה בתוספת</button></th>
+          </tr>
+        </thead>
+        <tbody data-draw="table" data-source="flagged_ballots"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="tv-method" id="method">
+    <h2>איך זה חושב</h2>
+    <ul>
+      <li>לכל קלפי בבחירות 2026 חושב שיעור ההצבעה (מצביעים חלקי בעלי זכות בחירה), והושווה לממוצע של חמש מערכות הבחירות הקודמות באותה קלפי.</li>
+      <li>מספרי הקלפיות משתנים בין מערכות, כי קלפיות מפוצלות, מאוחדות ונפתחות בשכונות חדשות. ההשוואה נעשית ברמה המדויקת ביותר שאפשר: אותה קלפי כשמספר בעלי זכות הבחירה בה יציב (ביטחון גבוה); אחרת אותו מקום קלפי (ריכוז), גם אם גדל עד פי 2 (ביטחון בינוני); אחרת היישוב כולו (ביטחון נמוך, בעיקר קלפיות חדשות).</li>
+      <li>רצועות: צהוב <b data-draw="cell" data-source="summary" data-field="yellow_pp" data-row="0">—</b>–<b data-draw="cell" data-source="summary" data-field="orange_pp" data-row="0">—</b> נק', כתום <b data-draw="cell" data-source="summary" data-field="orange_pp" data-row="0">—</b>–<b data-draw="cell" data-source="summary" data-field="red_pp" data-row="0">—</b> נק', אדום <b data-draw="cell" data-source="summary" data-field="red_pp" data-row="0">—</b> נק' ומעלה. קלפי מסומנת רק אם העלייה גם מובהקת: יותר מ־<b data-draw="cell" data-source="summary" data-field="red_sd" data-row="0">—</b> סטיות תקן מעל ההיסטוריה שלה, ולפחות <b data-draw="cell" data-source="summary" data-field="min_bzb" data-row="0">—</b> בעלי זכות בחירה. עוד <b data-draw="cell" data-source="summary" data-field="n_nonsig" data-row="0">—</b> קלפיות נמצאות ברצועת צבע אבל לא עברו את מבחן המובהקות; הן מופיעות ב־Excel.</li>
+      <li>מגזר: לפי סוג היישוב בלמ"ס (יהודי, ערבי, בדואי, דרוזי, עיר מעורבת). בערים מעורבות וביישובים יהודיים, קלפי שבה רוב הקולות הלכו למפלגות ערביות מסווגת "ערבי", וקלפי שבה 60% ומעלה הלכו למפלגות חרדיות מסווגת "חרדי".</li>
+      <li>מצביעים שנוספו: מצביעים בפועל, פחות שיעור ההצבעה הממוצע כפול מספר בעלי זכות הבחירה ב־2026. מנדט אחד שווה כ־<b data-draw="cell" data-source="summary" data-field="seat" data-row="0">—</b> קולות.</li>
+      <li>בדיקות תקינות: כל 12,018 הקלפיות הביתיות נכללו, והסכומים תואמים את קובץ היישובים של ועדת הבחירות בכל שש המערכות. שני ערכים מעל 100% בקובץ ספטמבר 2019 (כרמים, תלם) הוצאו מהממוצע. הפירוט המלא נמצא בלשונית "בדיקות תקינות" ב־Excel.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+  const F = d3.format(',');
+  const ok = (id) => { const d = dash.data(id); return d.status === 'ok' ? d.data : null; };
+  const BANDS = ['אדום', 'כתום', 'צהוב'];
+  const EN = { 'אדום': 'red', 'כתום': 'orange', 'צהוב': 'yellow' };
+  const BAND_COLOR = { 'אדום': '#d8443c', 'כתום': '#ea8a2e', 'צהוב': '#dcb62a' };
+  const BLOC_COLOR = { 'קואליציה': dash.colors[0], 'אופוזיציה': dash.colors[1], 'מפלגות ערביות': dash.colors[2], 'A': dash.colors[3], 'B': dash.colors[4] };
+  const colorOf = (el) => el.dataset.band ? BAND_COLOR[el.dataset.band] : (BLOC_COLOR[el.dataset.bloc] || 'var(--cds-chart-muted)');
+
+  // מצב הסינון של הדף
+  window.tvF = { bands: new Set(BANDS), sector: '', conf: false };
+  const pick = (rows) => rows.filter((d) => window.tvF.bands.has(d.band) && (!window.tvF.sector || d.sector === window.tvF.sector)
+    && (!window.tvF.conf || d.conf !== 'נמוכה'));
+  const bandSum = (row, prefix) => d3.sum([...window.tvF.bands], (b) => +row[`${prefix}_${EN[b]}`] || 0);
+
+  const tipLine = (tip, text, cls) => { const s = document.createElement('div'); if (cls) s.className = cls; s.textContent = text; tip.append(s); };
+  const showTip = (box, tip, ev) => {
+    tip.hidden = false;
+    const b = box.getBoundingClientRect();
+    const w = tip.offsetWidth, h = tip.offsetHeight;
+    let x = ev.clientX - b.left + 12, y = ev.clientY - b.top + 12;
+    if (x + w > b.width) x = Math.max(0, ev.clientX - b.left - w - 12);
+    if (y + h > b.height) y = Math.max(0, ev.clientY - b.top - h - 12);
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  };
+  const ballotTip = (tip, d) => {
+    tip.replaceChildren();
+    tipLine(tip, `${d.city} · קלפי ${d.kalpi} · ${d.sector}`, 'tv-tip-head');
+    const hist = ['t21', 't22', 't23', 't24', 't25'].map((k) => d[k] === '' ? '–' : `${(+d[k]).toFixed(1)}%`).join(' · ');
+    tipLine(tip, `5 קודמות: ${hist}`);
+    tipLine(tip, `ממוצע ${(+d.avg).toFixed(1)}% ← 2026: ${(+d.now).toFixed(1)}%`);
+    tipLine(tip, `${d.band}: +${(+d.dev).toFixed(1)} נק' · נוספו ${F(+d.added)} מצביעים`);
+    tipLine(tip, `בזב ${F(+d.bzb)} · רמת ביטחון: ${d.conf}`);
+    tipLine(tip, `מפלגה מובילה בתוספת: ${d.top_party}`);
+  };
+
+  dash.calc('band_total', {
+    inputs: ['band_summary'], title: 'סה"כ הקלפיות המסומנות',
+    description: 'סכום שלוש הרצועות: מספר קלפיות, מצביעים שנוספו ומנדטים.',
+    fn: (band_summary) => [{ n: d3.sum(band_summary, (r) => +r.n), added: d3.sum(band_summary, (r) => +r.added),
+      seats: Math.round(d3.sum(band_summary, (r) => +r.seats) * 10) / 10 }],
+  });
+  dash.calc('bloc_share', {
+    inputs: ['bloc_added'], title: 'חלק הגוש המוביל בתוספת',
+    description: 'הגוש שקיבל הכי הרבה מהקולות שנוספו (שיטה א\', כל הרצועות) וחלקו מכלל הקולות שנוספו.',
+    fn: (bloc_added) => {
+      const v = (r) => +r.a_red + +r.a_orange + +r.a_yellow;
+      const total = d3.sum(bloc_added, v);
+      return bloc_added.map((r) => ({ bloc: r.bloc, share: v(r) / total })).sort((a, b) => b.share - a.share);
+    },
+  });
+
+  dash.draw('cell', (el) => {
+    const r = ok(el.dataset.source);
+    if (!r) { el.textContent = '—'; return; }
+    let row = r[+el.dataset.row || 0];
+    if (el.dataset.where) {
+      const [k, v] = el.dataset.where.split('=');
+      row = r.find((x) => String(x[k]) === v);
+    }
+    const v = row ? row[el.dataset.field] : '';
+    el.textContent = v === '' || v == null ? '—' : (Number.isInteger(+v) && Math.abs(+v) >= 1000 ? F(+v) : String(+v));
+  });
+  dash.draw('topshare', (el) => { const r = ok('bloc_share'); el.textContent = r ? d3.format('.0%')(r[0].share) : '—'; });
+  dash.draw('topbloc', (el) => { const r = ok('bloc_share'); el.textContent = r ? r[0].bloc : '—'; });
+  dash.draw('swatch', (el) => { el.style.background = colorOf(el); });
+  dash.draw('count', (el) => { const r = ok('flagged_ballots'); el.textContent = r ? F(pick(r).length) : '—'; });
+
+  dash.draw('sector-select', (sel) => {
+    const g = ok('sector_summary');
+    const opts = (g || []).filter((r) => BANDS.some((b) => +r[`n_${EN[b]}`] > 0))
+      .sort((a, b) => (+b.n_red + +b.n_orange + +b.n_yellow) - (+a.n_red + +a.n_orange + +a.n_yellow));
+    sel.replaceChildren(new Option('כל המגזרים', ''), ...opts.map((r) => new Option(r.sector, r.sector)));
+    sel.value = window.tvF.sector;
+  });
+
+  const hbars = (el, items, max) => {
+    items.forEach((it, i) => {
+      const row = document.createElement('div'); row.className = 'tv-bar-row'; row.dataset.i = i;
+      const lab = document.createElement('span'); lab.className = 'tv-bar-label'; lab.textContent = it.label;
+      const track = document.createElement('span'); track.className = 'tv-bar-track';
+      const fill = document.createElement('span'); fill.className = 'tv-bar-fill';
+      fill.style.width = `${max > 0 ? Math.max(0, it.value / max) * 100 : 0}%`; fill.style.background = it.color;
+      track.append(fill);
+      const val = document.createElement('span'); val.className = 'tv-bar-val'; val.textContent = it.text;
+      row.append(lab, track, val);
+      el.append(row);
+    });
+  };
+
+  dash.draw('bars', (el) => {
+    const r = ok('flagged_ballots');
+    el.classList.toggle('dash-skeleton', !r);
+    el.replaceChildren();
+    if (!r) return;
+    const data = pick(r).sort((a, b) => +b.dev - +a.dev);
+    const max = d3.max(r, (d) => +d.dev);
+    hbars(el, data.map((d) => ({ label: `${d.city} · קלפי ${d.kalpi}`, value: +d.dev, color: BAND_COLOR[d.band],
+      text: `+${(+d.dev).toFixed(1)}% (+${F(+d.added)})` })), max);
+    const tip = document.createElement('div'); tip.className = 'tv-tip'; tip.hidden = true;
+    el.append(tip);
+    el.onmousemove = (ev) => {
+      const row = ev.target.closest('.tv-bar-row');
+      if (!row) { tip.hidden = true; return; }
+      ballotTip(tip, data[+row.dataset.i]); showTip(el, tip, ev);
+    };
+    el.onmouseleave = () => { tip.hidden = true; };
+  });
+
+  dash.draw('map', (el) => {
+    const r = ok('flagged_ballots'), o = ok('israel_outline');
+    el.classList.toggle('dash-skeleton', !(r && o));
+    el.replaceChildren();
+    if (!r || !o) return;
+    const rings = o.map((x) => JSON.parse(x.ring));
+    const W = el.clientWidth || 360, H = Math.min(820, Math.round(W * 1.8));
+    const merc = ([lon, lat]) => [lon * Math.PI / 180, Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360))];
+    const all = rings.flat().map(merc);
+    const [x0, x1] = d3.extent(all, (p) => p[0]), [y0, y1] = d3.extent(all, (p) => p[1]);
+    const k = Math.min((W - 20) / (x1 - x0), (H - 20) / (y1 - y0));
+    const ox = (W - k * (x1 - x0)) / 2, oy = (H - k * (y1 - y0)) / 2;
+    const proj = (p) => { const [x, y] = merc(p); return [ox + k * (x - x0), oy + k * (y1 - y)]; };
+    const svg = d3.select(el).append('svg').attr('viewBox', `0 0 ${W} ${H}`).attr('width', '100%').attr('role', 'img').attr('aria-label', 'מפת ישראל עם הקלפיות המסומנות');
+    svg.selectAll('path').data(rings).join('path')
+      .attr('d', (ring) => 'M' + ring.map((p) => proj(p).map((v) => v.toFixed(1)).join(',')).join('L') + 'Z')
+      .attr('fill', 'var(--color-bg)').attr('stroke', 'var(--cds-chart-axis)').attr('stroke-width', 1);
+    const data = pick(r).filter((d) => d.lat !== '' && d.lon !== '');
+    const maxAdded = d3.max(r, (d) => +d.added) || 1;
+    const rad = (d) => 1.4 + 2.2 * Math.sqrt(Math.max(0, +d.added) / maxAdded) * Math.min(1.4, W / 420);
+    // פיזור קלפיות של אותו יישוב בספירלה סביב מרכז היישוב
+    const byCity = d3.group(data, (d) => `${d.lat},${d.lon}`);
+    const pts = [];
+    for (const list of byCity.values()) {
+      const [cx, cy] = proj([+list[0].lon, +list[0].lat]);
+      list.slice().sort((a, b) => +b.dev - +a.dev).forEach((d, i) => {
+        const dist = i === 0 ? 0 : 2.6 * Math.sqrt(i);
+        const ang = i * 2.39996;
+        pts.push({ d, x: cx + dist * Math.cos(ang), y: cy + dist * Math.sin(ang) });
+      });
+    }
+    const order = { 'צהוב': 0, 'כתום': 1, 'אדום': 2 };
+    pts.sort((a, b) => order[a.d.band] - order[b.d.band]);
+    const tip = document.createElement('div'); tip.className = 'tv-tip'; tip.hidden = true; el.append(tip);
+    svg.append('g').selectAll('circle').data(pts).join('circle')
+      .attr('cx', (p) => p.x.toFixed(1)).attr('cy', (p) => p.y.toFixed(1)).attr('r', (p) => rad(p.d).toFixed(2))
+      .attr('fill', (p) => BAND_COLOR[p.d.band]).attr('fill-opacity', 0.9)
+      .attr('stroke', 'var(--color-panel)').attr('stroke-width', 0.4)
+      .on('mousemove', (ev, p) => { ballotTip(tip, p.d); showTip(el, tip, ev); })
+      .on('mouseleave', () => { tip.hidden = true; });
+  });
+
+  dash.draw('sectors', (el) => {
+    const r = ok('sector_summary');
+    el.classList.toggle('dash-skeleton', !r);
+    el.replaceChildren();
+    if (!r) return;
+    const rows = r.map((d) => ({ d, added: bandSum(d, 'add'), n: bandSum(d, 'n') }))
+      .filter((x) => x.n > 0 && (!window.tvF.sector || x.d.sector === window.tvF.sector)).sort((a, b) => b.added - a.added);
+    hbars(el, rows.map((x) => ({ label: x.d.sector, value: x.added, color: 'var(--cds-chart-status-critical)',
+      text: `${F(x.n)} קלפיות · +${F(x.added)} (${x.d.prior}% → ${x.d.now}%)` })), d3.max(rows, (x) => x.added));
+  });
+
+  dash.draw('parties', (el) => {
+    const r = ok('party_added'), s = ok('summary');
+    el.classList.toggle('dash-skeleton', !(r && s));
+    el.replaceChildren();
+    if (!r || !s) return;
+    const seat = +s[0].seat;
+    const top = r.map((d) => ({ d, v: bandSum(d, 'add') })).sort((a, b) => b.v - a.v).slice(0, 14);
+    hbars(el, top.map((x) => ({ label: x.d.party, value: x.v, color: BLOC_COLOR[x.d.bloc] || 'var(--cds-chart-muted)',
+      text: `${F(Math.round(x.v))} (${(x.v / seat).toFixed(2)})` })), d3.max(top, (x) => x.v));
+  });
+
+  dash.draw('blocs', (el) => {
+    const r = ok('bloc_added');
+    el.classList.toggle('dash-skeleton', !r);
+    el.replaceChildren();
+    if (!r) return;
+    const vals = r.map((d) => ({ bloc: d.bloc, a: bandSum(d, 'a'), b: bandSum(d, 'b') }));
+    const max = d3.max(vals, (d) => Math.max(d.a, d.b));
+    vals.forEach((d) => {
+      const g = document.createElement('div'); g.className = 'tv-bloc-group';
+      const name = document.createElement('div'); name.className = 'tv-bloc-name'; name.textContent = d.bloc;
+      g.append(name);
+      hbars(g, [
+        { label: "שיטה א'", value: d.a, color: BLOC_COLOR.A, text: F(d.a) },
+        { label: "שיטה ב'", value: d.b, color: BLOC_COLOR.B, text: F(d.b) },
+      ], max);
+      el.append(g);
+    });
+  });
+
+  window.tvSort = { key: 'dev', dir: -1 };
+  const NUM = new Set(['kalpi', 'bzb', 't21', 't22', 't23', 't24', 't25', 'avg', 'now', 'dev', 'sd', 'added']);
+  const COLS = ['city', 'kalpi', 'sector', 'band', 'bzb', 't21', 't22', 't23', 't24', 't25', 'avg', 'now', 'dev', 'sd', 'added', 'conf', 'top_party'];
+  dash.draw('table', (el) => {
+    const r = ok('flagged_ballots');
+    el.replaceChildren();
+    if (!r) return;
+    const q = (document.getElementById('tv-search')?.value || '').trim();
+    const { key, dir } = window.tvSort;
+    const rows = pick(r).filter((d) => !q || d.city.includes(q) || d.top_party.includes(q) || d.sector.includes(q))
+      .sort((a, b) => NUM.has(key) ? dir * ((+a[key] || 0) - (+b[key] || 0)) : dir * String(a[key]).localeCompare(String(b[key]), 'he'));
+    for (const d of rows) {
+      const tr = document.createElement('tr'); tr.dataset.key = d.id;
+      for (const c of COLS) {
+        const td = document.createElement('td');
+        const v = d[c];
+        if (c === 'band') {
+          const chip = document.createElement('span'); chip.className = 'tv-chip'; chip.style.background = BAND_COLOR[v]; chip.textContent = v;
+          td.append(chip);
+        } else {
+          td.textContent = v === '' ? '–' : (c === 'bzb' || c === 'added') ? F(+v) : v;
+        }
+        tr.append(td);
+      }
+      el.append(tr);
+    }
+  });
+
+  const redrawAll = () => ['count', 'bars', 'map', 'sectors', 'parties', 'blocs', 'table'].forEach((n) => dash.draw(n));
+  document.querySelectorAll('#filters input[name=band]').forEach((cb) => cb.addEventListener('change', () => {
+    window.tvF.bands = new Set([...document.querySelectorAll('#filters input[name=band]:checked')].map((x) => x.value));
+    redrawAll();
+  }));
+  document.querySelectorAll('#tv-sector').forEach((sel) => sel.addEventListener('change', () => { window.tvF.sector = sel.value; redrawAll(); }));
+  document.querySelectorAll('#tv-conf').forEach((cb) => cb.addEventListener('change', () => { window.tvF.conf = cb.checked; redrawAll(); }));
+  document.querySelectorAll('.tv-table th button[data-sort]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const k = btn.dataset.sort;
+      window.tvSort = { key: k, dir: window.tvSort.key === k ? -window.tvSort.dir : (NUM.has(k) ? -1 : 1) };
+      document.querySelectorAll('.tv-table th').forEach((th) => th.removeAttribute('aria-sort'));
+      btn.closest('th')?.setAttribute('aria-sort', window.tvSort.dir < 0 ? 'descending' : 'ascending');
+      dash.draw('table');
+    });
+  });
+  document.querySelectorAll('#tv-search').forEach((inp) => inp.addEventListener('input', () => dash.draw('table')));
+</script>
