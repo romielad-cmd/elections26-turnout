@@ -47,6 +47,9 @@
   .tv-table th { position: sticky; top: 0; background: var(--color-panel); font-weight: var(--cds-font-weight-medium); }
   .tv-table th button { all: unset; cursor: pointer; }
   .tv-table th button:focus-visible { outline: 2px solid var(--cds-chart-axis); outline-offset: 2px; }
+  .tv-callout { padding: var(--cds-pad-sm) var(--cds-pad-md); border-inline-start: 3px solid var(--cds-chart-axis); background: var(--color-panel); border-radius: var(--cds-radius); }
+  .tv-callout a { color: inherit; }
+  .tv-h3 { margin: var(--cds-gap-sm) 0 0; font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); }
   .tv-chip { display: inline-block; padding: 0 6px; border-radius: 999px; font-weight: 600; color: #1d1d1d; }
   .tv-method { display: grid; gap: var(--cds-gap-sm); max-width: 62rem; }
   .tv-method h2 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
@@ -64,6 +67,12 @@
       ב־<b data-draw="cell" data-source="band_total" data-field="n" data-row="0">—</b> קלפיות, מתוך <b data-draw="cell" data-source="summary" data-field="n_ballots" data-row="0">—</b>, שיעור ההצבעה ב־27 באוקטובר 2026 היה גבוה ב־<b data-draw="cell" data-source="summary" data-field="yellow_pp" data-row="0">—</b> נקודות אחוז ויותר מהממוצע של חמש מערכות הבחירות הקודמות, והעלייה מובהקת ביחס להיסטוריה של הקלפי.
       בקלפיות האלה הצביעו כ־<b data-draw="cell" data-source="band_total" data-field="added" data-row="0">—</b> בוחרים יותר מהצפוי, שהם כ־<b data-draw="cell" data-source="band_total" data-field="seats" data-row="0">—</b> מנדטים.
       <b data-draw="topshare" data-source="bloc_share" data-field="share" data-row="0">—</b> מהקולות הנוספים הלכו ל<b data-draw="topbloc" data-source="bloc_share" data-field="bloc" data-row="0">—</b>.
+    </p>
+    <p class="tv-lede tv-callout">
+      <b>אבל רוב הקפיצות הן עלייה של מגזר שלם, לא של קלפיות בודדות.</b>
+      כשמשווים כל קלפי לקלפיות דומות (אותו מגזר, באותו יישוב או בכל הארץ), רק <b data-draw="cell" data-source="robust_summary" data-field="hc" data-row="0">—</b> קלפיות כתומות או אדומות חריגות גם ביחס אליהן, עם השוואה היסטורית אמינה.
+      שיעור ההתראות של אותה בדיקה בבחירות 2021 ו־2022, שבהן לא ידוע על חריגות, היה מניב כ־<b data-draw="cell" data-source="robust_summary" data-field="hc_exp" data-row="0">—</b> קלפיות כאלה גם ללא שום דבר חריג.
+      בקלפיות האלה נוספו כ־<b data-draw="cell" data-source="robust_summary" data-field="hc_added" data-row="0">—</b> מצביעים בלבד. <a href="#robust">פירוט בבדיקות החוסן</a>.
     </p>
     <p class="tv-muted">השוואה לממוצע הבחירות באפריל 2019, ספטמבר 2019, מרץ 2020, מרץ 2021 ונובמבר 2022. מקור: קובצי התוצאות לפי קלפי של ועדת הבחירות המרכזית; סוג היישוב מקובץ היישובים של הלמ"ס. קפיצה בשיעור ההצבעה מצביעה על מקום שכדאי לבדוק, ואינה ראיה לאי־סדרים.</p>
   </header>
@@ -100,6 +109,7 @@
     </fieldset>
     <label><span class="tv-flabel">מגזר</span><select id="tv-sector" data-draw="sector-select" data-source="sector_summary" aria-label="מגזר"></select></label>
     <label><input type="checkbox" id="tv-conf">רק השוואה ברמת קלפי או מקום קלפי (ביטחון גבוה או בינוני)</label>
+    <label><input type="checkbox" id="tv-peer">רק חריגות גם מול קלפיות דומות</label>
   </div>
 
   <section class="tv-card" id="by-ballot">
@@ -153,6 +163,39 @@
     <div class="tv-bars dash-skeleton" data-draw="blocs" data-source="bloc_added"></div>
   </section>
 
+  <section class="tv-card" id="robust">
+    <h2>בדיקות חוסן: מול קלפיות דומות, ומול בחירות קודמות</h2>
+    <p class="tv-muted">
+      <b>מול קלפיות דומות:</b> לכל קלפי חושב העודף שלה מעל השונות החציונית של קלפיות מאותו מגזר באותו יישוב (אם יש בו <b data-draw="cell" data-source="robust_summary" data-field="min_peers" data-row="0">—</b> קלפיות לפחות), אחרת מאותו מגזר בכל הארץ, ביחידות של פיזור עמיד (MAD).
+      קלפי "חריגה מול דומות" אם העודף הוא <b data-draw="cell" data-source="robust_summary" data-field="peer_min_excess" data-row="0">—</b> נק' לפחות ו־z של <b data-draw="cell" data-source="robust_summary" data-field="z_peer" data-row="0">—</b> לפחות.
+      <b>Backtesting:</b> אותו כלל בדיוק הופעל על בחירות 2021 ו־2022 כאילו הן "הנוכחיות", עם ההיסטוריה שהייתה זמינה אז. הסף מול קלפיות דומות כויל כך שבבחירות האלה יסומנו כ־1% מהקלפיות לכל היותר.
+    </p>
+    <h3 class="tv-h3">כמה קלפיות כל בדיקה מסמנת, באחוזים מהקלפיות הזכאיות</h3>
+    <ul class="tv-legend">
+      <li><span class="tv-swatch" data-draw="swatch" data-bloc="own"></span>כתום+אדום, מול ההיסטוריה של הקלפי בלבד</li>
+      <li><span class="tv-swatch" data-draw="swatch" data-bloc="peer"></span>חריג מול קלפיות דומות</li>
+      <li><span class="tv-swatch" data-draw="swatch" data-bloc="hc"></span>שניהם, עם השוואה היסטורית אמינה</li>
+    </ul>
+    <div class="tv-bars dash-skeleton" data-draw="backtest" data-source="backtest"></div>
+    <p class="tv-muted">הכלל של 3 סטיות תקן לבדו מסמן מעט מאוד בבחירות רגילות (פחות מ־0.4%), כך שהוא לא "רועש" כשלעצמו. אבל ב־2026 הוא מסמן בעיקר עלייה כללית של מגזרים שלמים, שאותה הוא לא יודע להפריד.</p>
+    <h3 class="tv-h3">לפי מגזר, 2026</h3>
+    <div class="tv-tablebox" style="max-height: none;">
+      <table class="tv-table" data-source="robust_sector" data-row-key="sector">
+        <thead><tr>
+          <th data-field="sector">מגזר</th>
+          <th data-field="eligible">קלפיות</th>
+          <th data-field="median_dev">שונות חציונית (נק')</th>
+          <th data-field="own">כתום+אדום</th>
+          <th data-field="own_pct">% מהמגזר</th>
+          <th data-field="peer">חריגות מול דומות</th>
+          <th data-field="hc">שניהם, בביטחון</th>
+        </tr></thead>
+        <tbody data-draw="robust-sector" data-source="robust_sector"></tbody>
+      </table>
+    </div>
+    <p class="tv-muted">בקרב הבדואים בנגב השונות החציונית היא כ־33 נק': כמעט כל הקלפיות עלו יחד, ולכן אף אחת מהן אינה חריגה ביחס לשכנותיה. רוב הקלפיות שנותרו חריגות הן קלפיות בודדות ביישובים יהודיים, שקולותיהן מתפזרים בין מפלגות רבות.</p>
+  </section>
+
   <section class="tv-card" id="table">
     <h2>כל הקלפיות המסומנות</h2>
     <div class="tv-tablebar">
@@ -179,6 +222,8 @@
             <th data-field="sd"><button type="button" data-sort="sd">סטיות תקן</button></th>
             <th data-field="added"><button type="button" data-sort="added">מצביעים שנוספו</button></th>
             <th data-field="conf"><button type="button" data-sort="conf">רמת ביטחון</button></th>
+            <th data-field="excess_peer"><button type="button" data-sort="excess_peer">עודף מעל דומות (נק')</button></th>
+            <th data-field="peer"><button type="button" data-sort="peer">חריג מול דומות</button></th>
             <th data-field="top_party"><button type="button" data-sort="top_party">מפלגה מובילה בתוספת</button></th>
           </tr>
         </thead>
@@ -206,13 +251,14 @@
   const BANDS = ['אדום', 'כתום', 'צהוב'];
   const EN = { 'אדום': 'red', 'כתום': 'orange', 'צהוב': 'yellow' };
   const BAND_COLOR = { 'אדום': '#d8443c', 'כתום': '#ea8a2e', 'צהוב': '#dcb62a' };
-  const BLOC_COLOR = { 'קואליציה': dash.colors[0], 'אופוזיציה': dash.colors[1], 'מפלגות ערביות': dash.colors[2], 'A': dash.colors[3], 'B': dash.colors[4] };
+  const BLOC_COLOR = { 'קואליציה': dash.colors[0], 'אופוזיציה': dash.colors[1], 'מפלגות ערביות': dash.colors[2], 'A': dash.colors[3], 'B': dash.colors[4],
+    own: '#ea8a2e', peer: dash.colors[0], hc: '#d8443c' };
   const colorOf = (el) => el.dataset.band ? BAND_COLOR[el.dataset.band] : (BLOC_COLOR[el.dataset.bloc] || 'var(--cds-chart-muted)');
 
   // מצב הסינון של הדף
-  window.tvF = { bands: new Set(BANDS), sector: '', conf: false };
+  window.tvF = { bands: new Set(BANDS), sector: '', conf: false, peer: false };
   const pick = (rows) => rows.filter((d) => window.tvF.bands.has(d.band) && (!window.tvF.sector || d.sector === window.tvF.sector)
-    && (!window.tvF.conf || d.conf !== 'נמוכה'));
+    && (!window.tvF.conf || d.conf !== 'נמוכה') && (!window.tvF.peer || d.peer !== 'לא'));
   const bandSum = (row, prefix) => d3.sum([...window.tvF.bands], (b) => +row[`${prefix}_${EN[b]}`] || 0);
 
   const tipLine = (tip, text, cls) => { const s = document.createElement('div'); if (cls) s.className = cls; s.textContent = text; tip.append(s); };
@@ -233,6 +279,7 @@
     tipLine(tip, `ממוצע ${(+d.avg).toFixed(1)}% ← 2026: ${(+d.now).toFixed(1)}%`);
     tipLine(tip, `${d.band}: +${(+d.dev).toFixed(1)} נק' · נוספו ${F(+d.added)} מצביעים`);
     tipLine(tip, `בזב ${F(+d.bzb)} · רמת ביטחון: ${d.conf}`);
+    tipLine(tip, `מול קלפיות דומות: עודף ${d.excess_peer === '' ? '–' : (+d.excess_peer).toFixed(1)} נק' · חריג: ${d.peer}`);
     tipLine(tip, `מפלגה מובילה בתוספת: ${d.top_party}`);
   };
 
@@ -393,8 +440,8 @@
   });
 
   window.tvSort = { key: 'dev', dir: -1 };
-  const NUM = new Set(['kalpi', 'bzb', 't21', 't22', 't23', 't24', 't25', 'avg', 'now', 'dev', 'sd', 'added']);
-  const COLS = ['city', 'kalpi', 'sector', 'band', 'bzb', 't21', 't22', 't23', 't24', 't25', 'avg', 'now', 'dev', 'sd', 'added', 'conf', 'top_party'];
+  const NUM = new Set(['kalpi', 'bzb', 't21', 't22', 't23', 't24', 't25', 'avg', 'now', 'dev', 'sd', 'added', 'excess_peer']);
+  const COLS = ['city', 'kalpi', 'sector', 'band', 'bzb', 't21', 't22', 't23', 't24', 't25', 'avg', 'now', 'dev', 'sd', 'added', 'conf', 'excess_peer', 'peer', 'top_party'];
   dash.draw('table', (el) => {
     const r = ok('flagged_ballots');
     el.replaceChildren();
@@ -427,6 +474,43 @@
   }));
   document.querySelectorAll('#tv-sector').forEach((sel) => sel.addEventListener('change', () => { window.tvF.sector = sel.value; redrawAll(); }));
   document.querySelectorAll('#tv-conf').forEach((cb) => cb.addEventListener('change', () => { window.tvF.conf = cb.checked; redrawAll(); }));
+  document.querySelectorAll('#tv-peer').forEach((cb) => cb.addEventListener('change', () => { window.tvF.peer = cb.checked; redrawAll(); }));
+
+  dash.draw('backtest', (el) => {
+    const r = ok('backtest');
+    el.classList.toggle('dash-skeleton', !r);
+    el.replaceChildren();
+    if (!r) return;
+    const max = d3.max(r, (d) => Math.max(+d.own_pct, +d.peer_pct, +d.hc_pct));
+    r.forEach((d) => {
+      const g = document.createElement('div'); g.className = 'tv-bloc-group';
+      const name = document.createElement('div'); name.className = 'tv-bloc-name';
+      const ch = +d.nat_change;
+      name.textContent = `${d.election} · שינוי ארצי ${ch > 0 ? '+' : ''}${ch} נק' · ${F(+d.eligible)} קלפיות`;
+      g.append(name);
+      hbars(g, [
+        { label: 'מול ההיסטוריה', value: +d.own_pct, color: BLOC_COLOR.own, text: `${(+d.own_pct).toFixed(2)}% (${F(+d.own)})` },
+        { label: 'מול דומות', value: +d.peer_pct, color: BLOC_COLOR.peer, text: `${(+d.peer_pct).toFixed(2)}% (${F(+d.peer)})` },
+        { label: 'שניהם, בביטחון', value: +d.hc_pct, color: BLOC_COLOR.hc, text: `${(+d.hc_pct).toFixed(2)}% (${F(+d.hc)})` },
+      ], max);
+      el.append(g);
+    });
+  });
+
+  dash.draw('robust-sector', (el) => {
+    const r = ok('robust_sector');
+    el.replaceChildren();
+    if (!r) return;
+    for (const d of r.slice().sort((a, b) => +b.own - +a.own)) {
+      const tr = document.createElement('tr'); tr.dataset.key = d.sector;
+      for (const c of ['sector', 'eligible', 'median_dev', 'own', 'own_pct', 'peer', 'hc']) {
+        const td = document.createElement('td');
+        td.textContent = c === 'own_pct' ? `${d[c]}%` : (c === 'median_dev' && +d[c] > 0 ? `+${d[c]}` : (c === 'eligible' ? F(+d[c]) : d[c]));
+        tr.append(td);
+      }
+      el.append(tr);
+    }
+  });
   document.querySelectorAll('.tv-table th button[data-sort]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const k = btn.dataset.sort;

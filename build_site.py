@@ -14,6 +14,9 @@ SOURCES = {
     "band_summary": "band_summary.csv",
     "summary": "summary.csv",
     "israel_outline": "israel_outline.json",
+    "backtest": "backtest.csv",
+    "robust_sector": "robust_sector.csv",
+    "robust_summary": "robust_summary.csv",
 }
 
 os.makedirs("docs/data", exist_ok=True)
